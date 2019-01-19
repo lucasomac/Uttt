@@ -1,162 +1,181 @@
-"""
-@author: Lucas de Oliveira Macedo
-@author: Diogo
-@author: Jeferson
-"""
-import random
-import sys
-import os
-import pickle
-import time
+LOC = {"canto": [(0, 0), (0, 2), (2, 0), (2, 2)],
+       "cruz": [(0, 1), (1, 0), (1, 2), (2, 1)]}
+CENTER = (1, 1)
 
 
-class Tabuleiro:
-    def __init__(self, utlimate_tic_tac_toe, tic_tac_toe, quadro_para_jogar):
-        self.utlimate_tic_tac_toe = utlimate_tic_tac_toe
-        self.tic_tac_toe = tic_tac_toe
-        self.quadro_para_jogar = quadro_para_jogar
+class Board():
+    def __init__(self):
+        self.winner = None
+        self.board = [["-", "-", "-"],
+                      ["-", "-", "-"],
+                      ["-", "-", "-"]]
 
-
-class UltimateTicTacToe:
-    __CASA_DISPONIVEL = "0"
-    __NUM_COLUNA = 3
-    __NUM_LINHA = 3
-    __EMPATE = "+"
-
-    def __init__(self, player_1, player_2):
-        self.player_1 = player_1
-        self.player_2 = player_2
-
-        ultimate_tic_tac_toe = []
-        for a in range(9):
-            ultimate_tic_tac_toe.append([self.__CASA_DISPONIVEL] * (self.__NUM_COLUNA * 3))
-
-        tic_tac_toe = [self.__CASA_DISPONIVEL] * 9
-        self.tabuleiro = Tabuleiro(ultimate_tic_tac_toe, tic_tac_toe, None)
-
-        self.player_turn = random.choice([self.player_1, self.player_2])
-
-    def play(self):
-        self.player_1.startGame()
-        self.player_2.startGame()
-        movimento_player_anterior = None
-        while True:
-            if self.player_turn == self.player_1:
-                p1 = self.player_1
-                p2 = self.player_2
-            else:
-                p1 = self.player_2
-                p2 = self.player_1
-
-            self.chars = (p1.char, p2.char)
-
-            move = p1.move(self.tabuleiro)
-            movimento_ilegal = False
-            for a in range(move):
-                if not a in range(9):
-                    movimento_ilegal = True
-            if self.tabuleiro.tic_tac_toe[move[0]] != self.__CASA_DISPONIVEL:
-                movimento_ilegal = True
-            if self.tabuleiro.utlimate_tic_tac_toe[move[0]][move[1]] != self.__CASA_DISPONIVEL:
-                illegalMove = True
-            if movimento_player_anterior and move[0] != movimento_player_anterior:
-                illegalMove = True
-            if movimento_ilegal:
-                p1.reward(-99, self.tabuleiro)
-                # if self.verbose:
-                #     print("Illegal move")
-                break
-            self.tabuleiro.utlimate_tic_tac_toe[move[0]][move[1]] = p1.char
-            self.update_tic_tac_toe()
-            movimento_player_anterior = move[1]
-            if self.tabuleiro.tic_tac_toe[movimento_player_anterior] != self.__CASA_DISPONIVEL:
-                movimento_player_anterior = None
-            self.tabuleiro.SubBoardToBePlayed = movimento_player_anterior
-            result = self.the_end()
-            if result[0]:
-                if result[1] == self.chars[0]:
-                    # if self.verbose:
-                    #     self._print()
-                    #     print("\n {} {} won!".format(player.type, player.char))
-                    p1.reward(10, self.tabuleiro)
-                    p2.reward(-10, self.tabuleiro)
-                    break
-                if result[1] == self.chars[1]:
-                    # if self.verbose:
-                    #     self._print()
-                    #     print("\n {} {} won!".format(otherplayer.type, otherplayer.char))
-                    p2.reward(10, self.tabuleiro)
-                    p1.reward(-10, self.tabuleiro)
-                    break
-                else:
-                    # if self.verbose:
-                    #     self._print()
-                    #     print("\n", "Tie!")
-                    p1.reward(0.5, self.tabuleiro)
-                    p2.reward(0.5, self.tabuleiro)
-                    break
-            else:
-                p2.reward(0, self.tabuleiro)
-                p1.reward(0, self.tabuleiro)
-
-            # switch turns
-            self.player1turn = not self.player1turn
-
-    def update_tic_tac_toe(self):
-        # check wins on sub-tabuleiros and transfer to miniboard
-        for tic_tac_toes in range(len(self.tabuleiro.utlimate_tic_tac_toe)):
-            for char in self.chars:
-                if self.tic_tac_toe_win(self.tabuleiro.utlimate_tic_tac_toe[tic_tac_toes], char):
-                    self.tabuleiro.tic_tac_toe[tic_tac_toes] = char
-            if self.tabuleiro.utlimate_tic_tac_toe[tic_tac_toes].count(self.__CASA_DISPONIVEL) == 0:
-                self.tabuleiro.tic_tac_toe[tic_tac_toes] = self.__EMPATE
-
-    def tic_tac_toe_win(self, board, char):
-        for a, b, c in [(0, 1, 2), (3, 4, 5), (6, 7, 8),
-                        (0, 3, 6), (1, 4, 7), (2, 5, 8),
-                        (0, 4, 8), (2, 4, 6)]:
-            if char == board[a] == board[b] == board[c]:
-                return True
+    def check_diagonals(self, row, col):
+        if self.board[0][0] == self.board[1][1] and self.board[1][1] == self.board[2][2] and self.board[0][0] == \
+                self.board[row][col]:
+            return True
+        if self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][0] and self.board[0][2] == \
+                self.board[row][col]:
+            return True
         return False
 
-    def the_end(self):
+    def check_row(self, row, col):
+        for column in range(3):
+            if self.board[row][column] != self.board[row][col]:
+                return False
+        return True
 
-        for char in self.chars:
-            if self.tic_tac_toe_win(self.tabuleiro.tic_tac_toe, char):
-                return (True, char)
-        if self.tabuleiro.tic_tac_toe.count(self.__CASA_DISPONIVEL) > 0:
-            return (False, self.__CASA_DISPONIVEL)
-        else:
-            return (True, self.__CASA_DISPONIVEL)
+    def check_column(self, row, col):
+        for r in range(3):
+            if self.board[r][col] != self.board[row][col]:
+                return False
+        return True
+
+    def done(self, row, col):
+        if self.check_diagonals(row, col) or self.check_row(row, col) or self.check_column(row, col):
+            self.winner = self.board[row][col]
+            return True
+        return False
 
 
-class Player():
+class Ultimate_board():
+    def __init__(self, p_one, p_two):
+        self.board = [[Board(), Board(), Board()],
+                      [Board(), Board(), Board()],
+                      [Board(), Board(), Board()]]
+        self.p_one = p_one
+        self.p_two = p_two
+        self.winner = None
 
-    def __init__(self, char="O"):
-        self.type = "HUMANO"
-        self.char = char
+    def display_board(self):
+        string = "+---------------+---------------+---------------+\n"
+        for row in range(0, 3):
+            for board_row in range(0, 3):
+                for col in range(0, 3):
+                    if col == 0:
+                        string += "|   "
+                    for board_col in range(0, 3):
+                        string += str(self.board[row][col].board[board_row][board_col])
+                        if board_col != 2:
+                            string += " | "
+                    string += "   |   "
+                if board_row != 2:
+                    string += "\n|   --+---+--   |   --+---+--   |   --+---+--   |\n"
+                else:
+                    string += "\n+---------------+---------------+---------------+\n"
 
-    def startGame(self):
-        pass
+        print(string)
 
-    def move(self, ultimate_tic_tac_toe):
-        while True:
-            try:
-                move = input("(Entre com dois numeros separado por um espaço(entre 0 e 8 cada um) ou '-' para sair) ")
+    def display_wins(self):
+        string = "+---+---+---+\n"
+        for row in range(0, 3):
+            string += "|"
+            for col in range(0, 3):
+                if self.board[row][col].winner:
+                    string += " " + self.board[row][col].winner
+                else:
+                    string += " -"
+                string += " |"
+            string += "\n+---+---+---+\n"
+        print(string)
 
-                if move == '-':
-                    sys.exit(0)
-                if len(move) != 2:
-                    raise ValueError
-                # print("Move after split: ", move)
+    def check_diagonals(self, row, col):
+        if self.board[0][0].winner == self.board[1][1].winner and self.board[1][1].winner == self.board[2][2].winner and \
+                self.board[0][0].winner == self.board[row][col].winner:
+            return True
+        if self.board[0][2].winner == self.board[1][1].winner and self.board[1][1].winner == self.board[2][0].winner and \
+                self.board[0][2].winner == self.board[row][col].winner:
+            return True
+        return False
 
-            except ValueError:
-                print("Movimento invalido, tente novamente!")
+    def check_row(self, row, col):
+        for column in range(3):
+            if self.board[row][column].winner != self.board[row][col].winner:
+                return False
+        return True
+
+    def check_column(self, row, col):
+        for r in range(3):
+            if self.board[r][col].winner != self.board[row][col].winner:
+                return False
+        return True
+
+    def play(self):
+        p_one_play = True
+        freebie = False
+        row = None
+        col = None
+        board_row = None
+        board_col = None
+        play_made = False
+        while not self.winner:
+            if p_one_play:
+                print("Player 1")
             else:
-                break
-            finally:
-                print("____________________________")
-        return (int(move[0]), int(move[1]))
+                print("Player 2")
+            if not row and not col and row != 0 and col != 0:
+                print("Select a board")
+                row = int(input("Row: "))
+                col = int(input("Column: "))
+            if self.board[row][col].winner:
+                freebie = True
+            while freebie:
+                print("Freebie! Select a board")
+                row = int(input("Row: "))
+                col = int(input("Column: "))
+                if not self.board[row][col].winner:
+                    freebie = False
+            while not play_made:
+                board_row = int(input("Select row: "))
+                board_col = int(input("Select col: "))
+                if self.board[row][col].board[board_row][board_col] == "-":
+                    if p_one_play:
+                        self.board[row][col].board[board_row][board_col] = self.p_one
+                        if self.board[row][col].check_column(board_row, board_col) or self.board[row][col].check_row(
+                                board_row, board_col) or self.board[row][col].check_diagonals(board_row, board_col):
+                            self.board[row][col].winner = self.p_one
+                        # if self.check_column(row, col) or self.check_row(
+                        #         row, col) or self.check_diagonals(row, col):
+                        #     self.winner = self.p_one
+                    else:
+                        self.board[row][col].board[board_row][board_col] = self.p_two
+                        if self.board[row][col].check_column(board_row, board_col) or self.board[row][col].check_row(
+                                board_row, board_col) or self.board[row][col].check_diagonals(board_row, board_col):
+                            self.board[row][col].winner = self.p_two
+                        # if self.check_column(row, col) or self.check_row(
+                        #         row, col) or self.check_diagonals(row, col):
+                        #     self.winner = self.p_two
+                    play_made = True
+                else:
+                    print("Spot taken. Try again.")
+            row = board_row
+            col = board_col
+            if p_one_play:
+                p_one_play = False
+            else:
+                p_one_play = True
+            play_made = False
+            self.display_board()
+            self.display_wins()
 
-    def reward(self, value, tabuleiro):
-        pass
+
+def main():
+    p_one = input("Player One, X or O: ")
+    p_two = None
+    while p_one != "X" and p_one != "O":
+        print("Invalid letter")
+        p_one = input("Player One, X or O: ")
+    if p_one == "X":
+        p_two = "O"
+        print("Player 1: X")
+        print("Player 2: O")
+    else:
+        p_two = "X"
+        print("Player 1: O")
+        print("Player 2: X")
+    print("Game Start!")
+    ult_board = Ultimate_board(p_one, p_two)
+    ult_board.play()
+
+
+main()
