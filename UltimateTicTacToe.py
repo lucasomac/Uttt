@@ -3,76 +3,78 @@ LOC = {"canto": [(0, 0), (0, 2), (2, 0), (2, 2)],
 CENTER = (1, 1)
 
 
-class Board():
+class Tabuleiro():
     def __init__(self):
-        self.winner = None
-        self.board = [["-", "-", "-"],
-                      ["-", "-", "-"],
-                      ["-", "-", "-"]]
+        self.vencedor = None
+        self.tabuleiro = [["-", "-", "-"],
+                          ["-", "-", "-"],
+                          ["-", "-", "-"]]
 
     def check_diagonals(self, row, col):
-        if self.board[0][0] == self.board[1][1] and self.board[1][1] == self.board[2][2] and self.board[0][0] == \
-                self.board[row][col]:
+        if self.tabuleiro[0][0] == self.tabuleiro[1][1] and self.tabuleiro[1][1] == self.tabuleiro[2][2] and \
+                self.tabuleiro[0][0] == \
+                self.tabuleiro[row][col]:
             return True
-        if self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][0] and self.board[0][2] == \
-                self.board[row][col]:
+        if self.tabuleiro[0][2] == self.tabuleiro[1][1] and self.tabuleiro[1][1] == self.tabuleiro[2][0] and \
+                self.tabuleiro[0][2] == \
+                self.tabuleiro[row][col]:
             return True
         return False
 
     def check_row(self, row, col):
-        for column in range(3):
-            if self.board[row][column] != self.board[row][col]:
+        for coluna in range(3):
+            if self.tabuleiro[row][coluna] != self.tabuleiro[row][col]:
                 return False
         return True
 
     def check_column(self, row, col):
-        for r in range(3):
-            if self.board[r][col] != self.board[row][col]:
+        for linha in range(3):
+            if self.tabuleiro[linha][col] != self.tabuleiro[row][col]:
                 return False
         return True
 
     def done(self, row, col):
         if self.check_diagonals(row, col) or self.check_row(row, col) or self.check_column(row, col):
-            self.winner = self.board[row][col]
+            self.vencedor = self.tabuleiro[row][col]
             return True
         return False
 
 
 class Ultimate_board():
-    def __init__(self, p_one, p_two):
-        self.board = [[Board(), Board(), Board()],
-                      [Board(), Board(), Board()],
-                      [Board(), Board(), Board()]]
-        self.p_one = p_one
-        self.p_two = p_two
-        self.winner = None
+    def __init__(self, p1, p2):
+        self.tabuleiro = [[Tabuleiro(), Tabuleiro(), Tabuleiro()],
+                          [Tabuleiro(), Tabuleiro(), Tabuleiro()],
+                          [Tabuleiro(), Tabuleiro(), Tabuleiro()]]
+        self.p1 = p1
+        self.p2 = p2
+        self.vencedor = None
 
-    def display_board(self):
+    def print_tabuleiro(self):
         string = "+---------------+---------------+---------------+\n"
-        for row in range(0, 3):
-            for board_row in range(0, 3):
-                for col in range(0, 3):
-                    if col == 0:
+        for linha in range(0, 3):
+            for tabuleiro_linha in range(0, 3):
+                for coluna in range(0, 3):
+                    if coluna == 0:
                         string += "|   "
-                    for board_col in range(0, 3):
-                        string += str(self.board[row][col].board[board_row][board_col])
-                        if board_col != 2:
+                    for tabuleiro_coluna in range(0, 3):
+                        string += str(self.tabuleiro[linha][coluna].tabuleiro[tabuleiro_linha][tabuleiro_coluna])
+                        if tabuleiro_coluna != 2:
                             string += " | "
                     string += "   |   "
-                if board_row != 2:
+                if tabuleiro_linha != 2:
                     string += "\n|   --+---+--   |   --+---+--   |   --+---+--   |\n"
                 else:
                     string += "\n+---------------+---------------+---------------+\n"
 
         print(string)
 
-    def display_wins(self):
+    def print_vitorias(self):
         string = "+---+---+---+\n"
-        for row in range(0, 3):
+        for linha in range(0, 3):
             string += "|"
-            for col in range(0, 3):
-                if self.board[row][col].winner:
-                    string += " " + self.board[row][col].winner
+            for coluna in range(0, 3):
+                if self.tabuleiro[linha][coluna].vencedor:
+                    string += " " + self.tabuleiro[linha][coluna].vencedor
                 else:
                     string += " -"
                 string += " |"
@@ -80,83 +82,85 @@ class Ultimate_board():
         print(string)
 
     def check_diagonals(self, row, col):
-        if self.board[0][0].winner == self.board[1][1].winner and self.board[1][1].winner == self.board[2][2].winner and \
-                self.board[0][0].winner == self.board[row][col].winner:
+        if self.tabuleiro[0][0].vencedor == self.tabuleiro[1][1].vencedor and self.tabuleiro[1][1].vencedor == \
+                self.tabuleiro[2][
+                    2].vencedor and \
+                self.tabuleiro[0][0].vencedor == self.tabuleiro[row][col].vencedor:
             return True
-        if self.board[0][2].winner == self.board[1][1].winner and self.board[1][1].winner == self.board[2][0].winner and \
-                self.board[0][2].winner == self.board[row][col].winner:
+        if self.tabuleiro[0][2].vencedor == self.tabuleiro[1][1].vencedor and self.tabuleiro[1][1].vencedor == \
+                self.tabuleiro[2][
+                    0].vencedor and \
+                self.tabuleiro[0][2].vencedor == self.tabuleiro[row][col].vencedor:
             return True
         return False
 
     def check_row(self, row, col):
-        for column in range(3):
-            if self.board[row][column].winner != self.board[row][col].winner:
+        for coluna in range(3):
+            if self.tabuleiro[row][coluna].vencedor != self.tabuleiro[row][col].vencedor:
                 return False
         return True
 
     def check_column(self, row, col):
-        for r in range(3):
-            if self.board[r][col].winner != self.board[row][col].winner:
+        for linha in range(3):
+            if self.tabuleiro[linha][col].vencedor != self.tabuleiro[row][col].vencedor:
                 return False
         return True
 
+    def done(self, row, col):
+        if self.check_diagonals(row, col) or self.check_row(row, col) or self.check_column(row, col):
+            self.vencedor = self.tabuleiro[row][col].vencedor
+            return True
+        return False
+
     def play(self):
         p_one_play = True
-        freebie = False
+        bonus = False
         row = None
         col = None
         board_row = None
         board_col = None
-        play_made = False
-        while not self.winner:
+        local_disponivel = False
+        while not self.vencedor:
             if p_one_play:
                 print("Player 1")
             else:
                 print("Player 2")
             if not row and not col and row != 0 and col != 0:
-                print("Select a board")
-                row = int(input("Row: "))
-                col = int(input("Column: "))
-            if self.board[row][col].winner:
-                freebie = True
-            while freebie:
-                print("Freebie! Select a board")
-                row = int(input("Row: "))
-                col = int(input("Column: "))
-                if not self.board[row][col].winner:
-                    freebie = False
-            while not play_made:
-                board_row = int(input("Select row: "))
-                board_col = int(input("Select col: "))
-                if self.board[row][col].board[board_row][board_col] == "-":
+                print("Selecione o tabuleiro Menor")
+                row = int(input("Linha: "))
+                col = int(input("Coluna: "))
+            if self.tabuleiro[row][col].vencedor:
+                bonus = True
+            while bonus:
+                print("Bonus! Selecione um tabuleiro Menor")
+                row = int(input("Linha: "))
+                col = int(input("Coluna: "))
+                if not self.tabuleiro[row][col].vencedor:
+                    bonus = False
+            while not local_disponivel:
+                board_row = int(input("Selecione a linha do movimento: "))
+                board_col = int(input("Selecione a coluna do movimento: "))
+                if self.tabuleiro[row][col].tabuleiro[board_row][board_col] == "-":
                     if p_one_play:
-                        self.board[row][col].board[board_row][board_col] = self.p_one
-                        if self.board[row][col].check_column(board_row, board_col) or self.board[row][col].check_row(
-                                board_row, board_col) or self.board[row][col].check_diagonals(board_row, board_col):
-                            self.board[row][col].winner = self.p_one
-                        # if self.check_column(row, col) or self.check_row(
-                        #         row, col) or self.check_diagonals(row, col):
-                        #     self.winner = self.p_one
+                        self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p1
+                        self.tabuleiro[row][col].done(board_row, board_col)
+                        self.done(row, col)
                     else:
-                        self.board[row][col].board[board_row][board_col] = self.p_two
-                        if self.board[row][col].check_column(board_row, board_col) or self.board[row][col].check_row(
-                                board_row, board_col) or self.board[row][col].check_diagonals(board_row, board_col):
-                            self.board[row][col].winner = self.p_two
-                        # if self.check_column(row, col) or self.check_row(
-                        #         row, col) or self.check_diagonals(row, col):
-                        #     self.winner = self.p_two
-                    play_made = True
+                        self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p2
+                        self.tabuleiro[row][col].done(board_row, board_col)
+                        self.done(row, col)
+                    local_disponivel = True
                 else:
-                    print("Spot taken. Try again.")
+                    print("Movimento nao disponivel. Tente novamente.")
             row = board_row
             col = board_col
             if p_one_play:
                 p_one_play = False
             else:
                 p_one_play = True
-            play_made = False
-            self.display_board()
-            self.display_wins()
+            local_disponivel = False
+            self.print_tabuleiro()
+            self.print_vitorias()
 
 
 def main():
