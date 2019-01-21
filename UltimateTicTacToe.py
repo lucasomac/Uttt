@@ -168,15 +168,26 @@ class Ultimate_board():
                             print("Movimento nao disponivel. Tente novamente.")
                     row = board_row
                     col = board_col
-                    if p_one_play:
-                        p_one_play = False
-                    else:
-                        p_one_play = True
+                    # if p_one_play:
+                    p_one_play = False
+                    # else:
+                    #     p_one_play = True
                     local_disponivel = False
                 if isinstance(self.p1, Random):
-                    if not row and not col and row != 0 and col != 0:
+                    if (not row and not col and row != 0 and col != 0) or self.tabuleiro[row][col].vencedor:
                         row = (random.choice(self.get_movimentos_disponiveis()))[0]
                         col = (random.choice(self.get_movimentos_disponiveis()))[1]
+                    board_row = (random.choice(self.tabuleiro[row][col].get_movimentos_disponiveis()))[0]
+                    board_col = (random.choice(self.tabuleiro[row][col].get_movimentos_disponiveis()))[1]
+                    self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p1.symbol
+                    self.tabuleiro[row][col].done(board_row, board_col)
+                    self.done(row, col)
+                    row = board_row
+                    col = board_col
+                    # if p_one_play:
+                    p_one_play = False
+                    # else:
+                    #     p_one_play = True
 
             else:
                 print("Player 2")
@@ -215,6 +226,21 @@ class Ultimate_board():
                     else:
                         p_one_play = True
                     local_disponivel = False
+                if isinstance(self.p2, Random):
+                    if (not row and not col and row != 0 and col != 0) or self.tabuleiro[row][col].vencedor:
+                        row = (random.choice(self.get_movimentos_disponiveis()))[0]
+                        col = (random.choice(self.get_movimentos_disponiveis()))[1]
+                    board_row = (random.choice(self.tabuleiro[row][col].get_movimentos_disponiveis()))[0]
+                    board_col = (random.choice(self.tabuleiro[row][col].get_movimentos_disponiveis()))[1]
+                    self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p2.symbol
+                    self.tabuleiro[row][col].done(board_row, board_col)
+                    self.done(row, col)
+                    row = board_row
+                    col = board_col
+                    # if p_one_play:
+                    p_one_play = False
+                    # else:
+                    #     p_one_play = True
             self.print_tabuleiro()
             self.print_vitorias()
 
@@ -251,10 +277,11 @@ class Random(Player):
 
     def __init__(self):
         self.tipo = "RANDOM"
-        self.symbol = random.choice(["X", "O"])
+        # self.symbol = random.choice(["X", "O"])
+        self.symbol = "O"
 
 
 p1 = Player("X")
-p2 = Player("O")
+p2 = Random()
 
 main(p1, p2)
