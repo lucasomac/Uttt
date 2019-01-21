@@ -111,11 +111,6 @@ class Ultimate_board():
     def done(self, row, col):
         if self.check_diagonals(row, col) or self.check_row(row, col) or self.check_column(row, col):
             self.vencedor = self.tabuleiro[row][col].vencedor
-            # if self.tabuleiro[row][col].vencedor == self.p1.symbol:
-            #     self.vencedor = self.p1
-            # else:
-            #     self.vencedor = self.p2
-            # # if self.tabuleiro[row][col].vencedor == self.p1.symbol else self.p2
             return True
         return False
 
@@ -123,7 +118,7 @@ class Ultimate_board():
         disponiveis = []
         for linha in range(3):
             for coluna in range(3):
-                if self.tabuleiro[linha][coluna].vencedor:
+                if not self.tabuleiro[linha][coluna].vencedor:
                     disponiveis.append((linha, coluna))
         return disponiveis
 
@@ -135,63 +130,59 @@ class Ultimate_board():
         board_row = None
         board_col = None
         local_disponivel = False
+        # Enquanto nao houver vencedor no tabuleiro maior
         while not self.vencedor:
             if p_one_play:
                 print("Player 1")
-                if not isinstance(self.p1, Minimax):
+                # Se gor um humano ele pede os dados para fazer movimento
+                if isinstance(self.p1, Player):
+                    # Se for a primeira jogada ele pede qual tabuleiro menor deseja jogar
                     if not row and not col and row != 0 and col != 0:
                         print("Selecione o tabuleiro Menor")
                         row = int(input("Linha: "))
                         col = int(input("Coluna: "))
+                        # Se o tabuleiro menor ja foi ganho, voce pode escolher outro.
                     if self.tabuleiro[row][col].vencedor:
                         bonus = True
                     while bonus:
                         print("Bonus! Selecione um tabuleiro Menor")
                         row = int(input("Linha: "))
                         col = int(input("Coluna: "))
+                        # Verifica se o novo tabuleiro menor escolhido nao teve vencedor.
                         if not self.tabuleiro[row][col].vencedor:
                             bonus = False
                     while not local_disponivel:
                         board_row = int(input("Selecione a linha do movimento: "))
                         board_col = int(input("Selecione a coluna do movimento: "))
                         if self.tabuleiro[row][col].tabuleiro[board_row][board_col] == "-":
-                            # if p_one_play:
                             self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p1.symbol
+                            # Verifica vitoria no tabuleiro menor
                             self.tabuleiro[row][col].done(board_row, board_col)
+                            # Verifica vitoria no tabuleiro maior
                             self.done(row, col)
-                            # else:
-                            #     self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p2.symbol
-                            #     self.tabuleiro[row][col].done(board_row, board_col)
-                            #     self.done(row, col)
                             local_disponivel = True
                         else:
                             print("Movimento nao disponivel. Tente novamente.")
                     row = board_row
                     col = board_col
-                    # if p_one_play:
                     p_one_play = False
-                    # else:
-                    #     p_one_play = True
                     local_disponivel = False
-                if isinstance(self.p1, Random):
+                if isinstance(self.p1, PlayerRandom):
                     if (not row and not col and row != 0 and col != 0) or self.tabuleiro[row][col].vencedor:
                         row = (random.choice(self.get_movimentos_disponiveis()))[0]
                         col = (random.choice(self.get_movimentos_disponiveis()))[1]
                     board_row = (random.choice(self.tabuleiro[row][col].get_movimentos_disponiveis()))[0]
                     board_col = (random.choice(self.tabuleiro[row][col].get_movimentos_disponiveis()))[1]
+                    # print(board_row, board_col)
                     self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p1.symbol
                     self.tabuleiro[row][col].done(board_row, board_col)
                     self.done(row, col)
                     row = board_row
                     col = board_col
-                    # if p_one_play:
                     p_one_play = False
-                    # else:
-                    #     p_one_play = True
-
             else:
                 print("Player 2")
-                if not isinstance(self.p2, Minimax):
+                if isinstance(self.p2, Player):
                     if not row and not col and row != 0 and col != 0:
                         print("Selecione o tabuleiro Menor")
                         row = int(input("Linha: "))
@@ -208,11 +199,6 @@ class Ultimate_board():
                         board_row = int(input("Selecione a linha do movimento: "))
                         board_col = int(input("Selecione a coluna do movimento: "))
                         if self.tabuleiro[row][col].tabuleiro[board_row][board_col] == "-":
-                            # if p_one_play:
-                            #     self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p1.symbol
-                            #     self.tabuleiro[row][col].done(board_row, board_col)
-                            #     self.done(row, col)
-                            # else:
                             self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p2.symbol
                             self.tabuleiro[row][col].done(board_row, board_col)
                             self.done(row, col)
@@ -221,12 +207,9 @@ class Ultimate_board():
                             print("Movimento nao disponivel. Tente novamente.")
                     row = board_row
                     col = board_col
-                    if p_one_play:
-                        p_one_play = False
-                    else:
-                        p_one_play = True
+                    p_one_play = True
                     local_disponivel = False
-                if isinstance(self.p2, Random):
+                if isinstance(self.p2, PlayerRandom):
                     if (not row and not col and row != 0 and col != 0) or self.tabuleiro[row][col].vencedor:
                         row = (random.choice(self.get_movimentos_disponiveis()))[0]
                         col = (random.choice(self.get_movimentos_disponiveis()))[1]
@@ -237,10 +220,7 @@ class Ultimate_board():
                     self.done(row, col)
                     row = board_row
                     col = board_col
-                    # if p_one_play:
-                    p_one_play = False
-                    # else:
-                    #     p_one_play = True
+                    p_one_play = True
             self.print_tabuleiro()
             self.print_vitorias()
 
@@ -273,15 +253,15 @@ class Minimax(Player):
         self.tipo = "AI"
 
 
-class Random(Player):
+class PlayerRandom():
 
-    def __init__(self):
+    def __init__(self, symbol):
         self.tipo = "RANDOM"
-        # self.symbol = random.choice(["X", "O"])
-        self.symbol = "O"
+        self.symbol = symbol
 
 
-p1 = Player("X")
-p2 = Random()
+# Defina dois players para iniciar o jogo. Para jogar contra a maquina defina um player na classe Player e um na classe PlayerRandom
+p1 = PlayerRandom("X")
+p2 = PlayerRandom("O")
 
 main(p1, p2)
