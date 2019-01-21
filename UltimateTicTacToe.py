@@ -11,13 +11,9 @@ class Tabuleiro():
                           ["-", "-", "-"]]
 
     def check_diagonals(self, row, col):
-        if self.tabuleiro[0][0] == self.tabuleiro[1][1] and self.tabuleiro[1][1] == self.tabuleiro[2][2] and \
-                self.tabuleiro[0][0] == \
-                self.tabuleiro[row][col]:
+        if self.tabuleiro[0][0] == self.tabuleiro[1][1] == self.tabuleiro[2][2] == self.tabuleiro[row][col]:
             return True
-        if self.tabuleiro[0][2] == self.tabuleiro[1][1] and self.tabuleiro[1][1] == self.tabuleiro[2][0] and \
-                self.tabuleiro[0][2] == \
-                self.tabuleiro[row][col]:
+        if self.tabuleiro[0][2] == self.tabuleiro[1][1] == self.tabuleiro[2][0] == self.tabuleiro[row][col]:
             return True
         return False
 
@@ -82,15 +78,11 @@ class Ultimate_board():
         print(string)
 
     def check_diagonals(self, row, col):
-        if self.tabuleiro[0][0].vencedor == self.tabuleiro[1][1].vencedor and self.tabuleiro[1][1].vencedor == \
-                self.tabuleiro[2][
-                    2].vencedor and \
-                self.tabuleiro[0][0].vencedor == self.tabuleiro[row][col].vencedor:
+        if self.tabuleiro[0][0].vencedor == self.tabuleiro[1][1].vencedor == self.tabuleiro[2][2].vencedor == \
+                self.tabuleiro[row][col].vencedor:
             return True
-        if self.tabuleiro[0][2].vencedor == self.tabuleiro[1][1].vencedor and self.tabuleiro[1][1].vencedor == \
-                self.tabuleiro[2][
-                    0].vencedor and \
-                self.tabuleiro[0][2].vencedor == self.tabuleiro[row][col].vencedor:
+        if self.tabuleiro[0][2].vencedor == self.tabuleiro[1][1].vencedor == self.tabuleiro[2][0].vencedor == \
+                self.tabuleiro[row][col].vencedor:
             return True
         return False
 
@@ -109,6 +101,11 @@ class Ultimate_board():
     def done(self, row, col):
         if self.check_diagonals(row, col) or self.check_row(row, col) or self.check_column(row, col):
             self.vencedor = self.tabuleiro[row][col].vencedor
+            # if self.tabuleiro[row][col].vencedor == self.p1.symbol:
+            #     self.vencedor = self.p1
+            # else:
+            #     self.vencedor = self.p2
+            # # if self.tabuleiro[row][col].vencedor == self.p1.symbol else self.p2
             return True
         return False
 
@@ -123,58 +120,94 @@ class Ultimate_board():
         while not self.vencedor:
             if p_one_play:
                 print("Player 1")
+                if not isinstance(self.p1, Minimax):
+                    if not row and not col and row != 0 and col != 0:
+                        print("Selecione o tabuleiro Menor")
+                        row = int(input("Linha: "))
+                        col = int(input("Coluna: "))
+                    if self.tabuleiro[row][col].vencedor:
+                        bonus = True
+                    while bonus:
+                        print("Bonus! Selecione um tabuleiro Menor")
+                        row = int(input("Linha: "))
+                        col = int(input("Coluna: "))
+                        if not self.tabuleiro[row][col].vencedor:
+                            bonus = False
+                    while not local_disponivel:
+                        board_row = int(input("Selecione a linha do movimento: "))
+                        board_col = int(input("Selecione a coluna do movimento: "))
+                        if self.tabuleiro[row][col].tabuleiro[board_row][board_col] == "-":
+                            # if p_one_play:
+                            self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p1.symbol
+                            self.tabuleiro[row][col].done(board_row, board_col)
+                            self.done(row, col)
+                            # else:
+                            #     self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p2.symbol
+                            #     self.tabuleiro[row][col].done(board_row, board_col)
+                            #     self.done(row, col)
+                            local_disponivel = True
+                        else:
+                            print("Movimento nao disponivel. Tente novamente.")
+                    row = board_row
+                    col = board_col
+                    if p_one_play:
+                        p_one_play = False
+                    else:
+                        p_one_play = True
+                    local_disponivel = False
             else:
                 print("Player 2")
-            if not row and not col and row != 0 and col != 0:
-                print("Selecione o tabuleiro Menor")
-                row = int(input("Linha: "))
-                col = int(input("Coluna: "))
-            if self.tabuleiro[row][col].vencedor:
-                bonus = True
-            while bonus:
-                print("Bonus! Selecione um tabuleiro Menor")
-                row = int(input("Linha: "))
-                col = int(input("Coluna: "))
-                if not self.tabuleiro[row][col].vencedor:
-                    bonus = False
-            while not local_disponivel:
-                board_row = int(input("Selecione a linha do movimento: "))
-                board_col = int(input("Selecione a coluna do movimento: "))
-                if self.tabuleiro[row][col].tabuleiro[board_row][board_col] == "-":
+                if not isinstance(self.p2, Minimax):
+                    if not row and not col and row != 0 and col != 0:
+                        print("Selecione o tabuleiro Menor")
+                        row = int(input("Linha: "))
+                        col = int(input("Coluna: "))
+                    if self.tabuleiro[row][col].vencedor:
+                        bonus = True
+                    while bonus:
+                        print("Bonus! Selecione um tabuleiro Menor")
+                        row = int(input("Linha: "))
+                        col = int(input("Coluna: "))
+                        if not self.tabuleiro[row][col].vencedor:
+                            bonus = False
+                    while not local_disponivel:
+                        board_row = int(input("Selecione a linha do movimento: "))
+                        board_col = int(input("Selecione a coluna do movimento: "))
+                        if self.tabuleiro[row][col].tabuleiro[board_row][board_col] == "-":
+                            # if p_one_play:
+                            #     self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p1.symbol
+                            #     self.tabuleiro[row][col].done(board_row, board_col)
+                            #     self.done(row, col)
+                            # else:
+                            self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p2.symbol
+                            self.tabuleiro[row][col].done(board_row, board_col)
+                            self.done(row, col)
+                            local_disponivel = True
+                        else:
+                            print("Movimento nao disponivel. Tente novamente.")
+                    row = board_row
+                    col = board_col
                     if p_one_play:
-                        self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p1
-                        self.tabuleiro[row][col].done(board_row, board_col)
-                        self.done(row, col)
+                        p_one_play = False
                     else:
-                        self.tabuleiro[row][col].tabuleiro[board_row][board_col] = self.p2
-                        self.tabuleiro[row][col].done(board_row, board_col)
-                        self.done(row, col)
-                    local_disponivel = True
-                else:
-                    print("Movimento nao disponivel. Tente novamente.")
-            row = board_row
-            col = board_col
-            if p_one_play:
-                p_one_play = False
-            else:
-                p_one_play = True
-            local_disponivel = False
+                        p_one_play = True
+                    local_disponivel = False
             self.print_tabuleiro()
             self.print_vitorias()
 
 
-def main():
-    p_one = input("Player One, X or O: ")
-    p_two = None
-    while p_one != "X" and p_one != "O":
-        print("Invalid letter")
-        p_one = input("Player One, X or O: ")
-    if p_one == "X":
-        p_two = "O"
+def main(p1, p2):
+    p_one = p1
+    p_two = p2
+    # while p_one != "X" and p_one != "O":
+    #     print("Invalid letter")
+    #     p_one = input("Player One, X or O: ")
+    if p_one.symbol == "X":
+        # p_two = "O"
         print("Player 1: X")
         print("Player 2: O")
     else:
-        p_two = "X"
+        # p_two = "X"
         print("Player 1: O")
         print("Player 2: X")
     print("Game Start!")
@@ -182,4 +215,37 @@ def main():
     ult_board.play()
 
 
-main()
+class Player():
+
+    def __init__(self, tipo, symbol):
+        self.tipo = tipo
+        self.symbol = symbol
+
+
+class Minimax(Player):
+    recompensa = 0
+
+
+# def main():
+#     p_one = input("Player One, X or O: ")
+#     p_two = None
+#     while p_one != "X" and p_one != "O":
+#         print("Invalid letter")
+#         p_one = input("Player One, X or O: ")
+#     if p_one == "X":
+#         p_two = "O"
+#         print("Player 1: X")
+#         print("Player 2: O")
+#     else:
+#         p_two = "X"
+#         print("Player 1: O")
+#         print("Player 2: X")
+#     print("Game Start!")
+#     ult_board = Ultimate_board(p_one, p_two)
+#     ult_board.play()
+
+
+p1 = Player("HUMANO", "X")
+p2 = Player("HUMANO", "O")
+
+main(p1, p2)
