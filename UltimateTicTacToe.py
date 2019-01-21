@@ -1,3 +1,5 @@
+import random
+
 LOC = {"canto": [(0, 0), (0, 2), (2, 0), (2, 2)],
        "cruz": [(0, 1), (1, 0), (1, 2), (2, 1)]}
 CENTER = (1, 1)
@@ -34,6 +36,14 @@ class Tabuleiro():
             self.vencedor = self.tabuleiro[row][col]
             return True
         return False
+
+    def get_movimentos_disponiveis(self):
+        disponiveis = []
+        for linha in range(3):
+            for coluna in range(3):
+                if self.tabuleiro[linha][coluna] == "-":
+                    disponiveis.append((linha, coluna))
+        return disponiveis
 
 
 class Ultimate_board():
@@ -109,6 +119,14 @@ class Ultimate_board():
             return True
         return False
 
+    def get_movimentos_disponiveis(self):
+        disponiveis = []
+        for linha in range(3):
+            for coluna in range(3):
+                if self.tabuleiro[linha][coluna].vencedor:
+                    disponiveis.append((linha, coluna))
+        return disponiveis
+
     def play(self):
         p_one_play = True
         bonus = False
@@ -155,6 +173,11 @@ class Ultimate_board():
                     else:
                         p_one_play = True
                     local_disponivel = False
+                if isinstance(self.p1, Random):
+                    if not row and not col and row != 0 and col != 0:
+                        row = (random.choice(self.get_movimentos_disponiveis()))[0]
+                        col = (random.choice(self.get_movimentos_disponiveis()))[1]
+
             else:
                 print("Player 2")
                 if not isinstance(self.p2, Minimax):
@@ -199,15 +222,10 @@ class Ultimate_board():
 def main(p1, p2):
     p_one = p1
     p_two = p2
-    # while p_one != "X" and p_one != "O":
-    #     print("Invalid letter")
-    #     p_one = input("Player One, X or O: ")
     if p_one.symbol == "X":
-        # p_two = "O"
         print("Player 1: X")
         print("Player 2: O")
     else:
-        # p_two = "X"
         print("Player 1: O")
         print("Player 2: X")
     print("Game Start!")
@@ -217,35 +235,26 @@ def main(p1, p2):
 
 class Player():
 
-    def __init__(self, tipo, symbol):
-        self.tipo = tipo
+    def __init__(self, symbol, tipo="HUMANO"):
         self.symbol = symbol
+        self.tipo = tipo
 
 
 class Minimax(Player):
     recompensa = 0
 
-
-# def main():
-#     p_one = input("Player One, X or O: ")
-#     p_two = None
-#     while p_one != "X" and p_one != "O":
-#         print("Invalid letter")
-#         p_one = input("Player One, X or O: ")
-#     if p_one == "X":
-#         p_two = "O"
-#         print("Player 1: X")
-#         print("Player 2: O")
-#     else:
-#         p_two = "X"
-#         print("Player 1: O")
-#         print("Player 2: X")
-#     print("Game Start!")
-#     ult_board = Ultimate_board(p_one, p_two)
-#     ult_board.play()
+    def __init__(self):
+        self.tipo = "AI"
 
 
-p1 = Player("HUMANO", "X")
-p2 = Player("HUMANO", "O")
+class Random(Player):
+
+    def __init__(self):
+        self.tipo = "RANDOM"
+        self.symbol = random.choice(["X", "O"])
+
+
+p1 = Player("X")
+p2 = Player("O")
 
 main(p1, p2)
